@@ -27,3 +27,23 @@
     └───state
             state.go
 ```
+
+## 23/8
+
+- De início, tive uma conversa com o Gemini para entender os benefícios de configurações específicas na inicialização do sdk do `flagsmith`
+    - A ideia é que ele baixe todas as flags localmente ao inicializar e tenha um melhor gerenciamento da leitura dessas flags, em memória
+- Além disso, isolei de fato o inicializador do sdk por trás de uma struct/interface, em `internal/services/flags.go` , facilitando a manutenção e testabilidade
+- Descobri 3 ferramentas para tornar a saída de testes mais agradável:
+```
+// gotestsum
+go install gotest.tools/gotestsum@latest
+gotestsum --format pkgname
+
+// tparse
+go install github.com/mfridman/tparse@latest
+go test -json ./... | tparse -all
+
+// coverage nativo
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
+```
