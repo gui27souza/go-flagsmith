@@ -3,21 +3,21 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Flagsmith/flagsmith-go-client/v4"
 	"github.com/gin-gonic/gin"
 
+	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/state"
 )
 
 type AppHandler struct {
-	state       *state.State
-	flagsClient *flagsmith.Client
+	state    *state.State
+	flagsSvc flags.Service
 }
 
-func NewAppHandler(s *state.State, fs *flagsmith.Client) *AppHandler {
+func NewAppHandler(s *state.State, fSvc flags.Service) *AppHandler {
 	return &AppHandler{
-		state:       s,
-		flagsClient: fs,
+		state:    s,
+		flagsSvc: fSvc,
 	}
 }
 

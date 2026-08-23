@@ -1,26 +1,30 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/Flagsmith/flagsmith-go-client/v4"
 	"github.com/gin-gonic/gin"
 
 	"goflagsmith/internal/handlers"
+	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/state"
 )
 
 func main() {
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	appState := state.NewState()
 
-	fsClient := InitFsClient()
-
+	flagsSvc := flags.NewClient(ctx, os.Getenv("FLAGSMITH_API_KEY"))
 	appState.SetClientsReady()
+	flagsSvc.MonitorFlagsReady(ctx, appState)
 
-	h := handlers.NewAppHandler(appState, fsClient)
+	h := handlers.NewAppHandler(appState, flagsSvc)
 
 	router := gin.Default()
 
@@ -33,13 +37,4 @@ func main() {
 	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("FATAL: HTTP server terminated with error: %v", err)
 	}
-}
-
-func InitFsClient() *flagsmith.Client {
-	fsAPIKey := os.Getenv("FLAGSMITH_API_KEY")
-	if fsAPIKey == "" {
-		log.Fatalf("FATAL: FLAGSMITH_API_KEY environment variable is required")
-	}
-
-	return flagsmith.NewClient(fsAPIKey)
 }
