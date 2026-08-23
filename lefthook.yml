@@ -1,11 +1,7 @@
 pre-commit:
   parallel: true
   commands:
-    gofmt:
+    gofmtvet:
       glob: "*.go"
-      run: go fmt {staged_files}
+      run: make vet
       stage_fixed: true
-
-    govet:
-      glob: "*.go"
-      run: go vet ./...
