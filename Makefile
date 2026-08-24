@@ -1,3 +1,6 @@
+include .env
+export
+
 .DEFAULT_GOAL := build
 
 .PHONY: fmt vet test coverage dev build start clean
@@ -19,7 +22,15 @@ coverage:
 	@go test -coverprofile=coverage.out ./...
 	@go tool cover -html=coverage.out
 
-dev: vet
+check-env:
+	@if [ -z "$$FLAGSMITH_API_KEY" ]; then \
+		echo "⚠️ Variable FLAGSMITH_API_KEY is empty!"; \
+		exit 1; \
+	else \
+		echo "✅ Variable FLAGSMITH_API_KEY is filled."; \
+	fi
+
+dev: vet check-env
 	@echo "Running code..."
 	@go run ./cmd/api
 
