@@ -9,12 +9,16 @@ import (
 	"github.com/Flagsmith/flagsmith-go-client/v4"
 )
 
+type flagsmithSDK interface {
+	GetEnvironmentFlags(ctx context.Context) (flagsmith.Flags, error)
+}
+
 type Service interface {
 	IsFeatureEnabled(ctx context.Context, featureName string) bool
 }
 
 type Client struct {
-	sdk *flagsmith.Client
+	sdk flagsmithSDK
 }
 
 func NewClient(ctx context.Context, apiKey string) *Client {
@@ -32,11 +36,18 @@ func NewClient(ctx context.Context, apiKey string) *Client {
 	return &Client{sdk}
 }
 
-func (c *Client) MonitorFlagsReady(ctx context.Context, appState *state.State) {
+// Testable Constructor
+func NewClientWithSDK(sdk flagsmithSDK) *Client {
+	return &Client{sdk: sdk}
+}
+
+func (c *Client) MonitorFlagsReady(
+	ctx context.Context, appState *state.State, interval time.Duration,
+) {
 
 	go func() {
 
-		ticker := time.NewTicker(2 * time.Second)
+		ticker := time.NewTicker(interval)
 		defer ticker.Stop()
 
 		for {

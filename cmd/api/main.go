@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -22,7 +23,9 @@ func main() {
 
 	flagsSvc := flags.NewClient(ctx, os.Getenv("FLAGSMITH_API_KEY"))
 	appState.SetClientsReady()
-	flagsSvc.MonitorFlagsReady(ctx, appState)
+	flagsSvc.MonitorFlagsReady(
+		ctx, appState, 2*time.Second,
+	)
 
 	h := handlers.NewAppHandler(appState, flagsSvc)
 
