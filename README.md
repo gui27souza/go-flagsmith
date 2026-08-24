@@ -1,53 +1,53 @@
 # go-flagsmith
 
-Microsserviço REST em Go projetado para demonstrar padrões de resiliência, observabilidade e consumo de feature flags e configurações dinâmicas via Flagsmith SDK.
+A REST microservice in Go designed to demonstrate resilience patterns, observability, and dynamic feature flag consumption using the Flagsmith SDK.
 
-Este projeto faz parte da construção de uma base para Internal Developer Platform (IDP).
-
----
-
-## 🎯 Objetivos do Projeto
-
-- **Feature Flags & Remote Config:** Consumo eficiente com foco em baixa latência e resiliência a falhas de rede.
-- **Probes de Ciclo de Vida:** Endpoints `/healthz` (liveness) e `/readyz` (readiness) refletindo o estado real dos subsistemas da aplicação.
-- **Resiliência:** Estratégias de fallback seguro para evitar indisponibilidade em caso de instabilidade de serviços externos.
-- **Boas Práticas em Go:** Concorrência segura (`sync.RWMutex`), injeção de dependências e testes automatizados.
+This project is part of building a foundation for an Internal Developer Platform (IDP).
 
 ---
 
-## 🛠️ Stack Técnica
+## 🎯 Project Objectives
 
-- **Linguagem:** Go (1.22+)
-- **Router HTTP:** Gin Web Framework
+- **Feature Flags & Remote Config:** Highly efficient consumption focused on low latency and network failure resilience.
+- **Lifecycle Probes:** `/healthz` (liveness) and `/readyz` (readiness) endpoints reflecting the actual state of application subsystems.
+- **Resilience:** Safe fallback strategies to prevent downtime during external service instability.
+- **Go Best Practices:** Safe concurrency (`sync.RWMutex`), dependency injection, and automated testing.
+
+---
+
+## 🛠️ Technical Stack
+
+- **Language:** Go (1.22+)
+- **HTTP Router:** Gin Web Framework
 - **SDK:** Flagsmith Go Client (Local Evaluation / Polling)
-- **Containerização:** Docker
+- **Containerization:** Docker
 
 ---
 
-## 🚀 Como Executar
+## 🚀 How to Run
 
-### Pré-requisitos
+### Prerequisites
+
 - Go 1.22+
-- Make (opcional, para automação de tarefas)
+- Make (optional, for task automation)
 
-### Variáveis de Ambiente
-Crie um arquivo `.env` ou exporte a chave da API do Flagsmith:
+### Environment Variables
+
+Create a `.env` file or export the Flagsmith API key:
 
 ```bash
-export FLAGSMITH_API_KEY="sua_chave_aqui"
+export FLAGSMITH_API_KEY="your_key_here"
 ```
 
-### Executando Localmente
-```bash
-# Baixar dependências
-go mod tidy
+### Running Locally
 
-# Executar a API
-go run cmd/api/main.go
+```bash
+# Formats, vets, checks envs, and runs the application!
+make dev
 ```
 
 ---
 
-## 📌 Status do Projeto
+## 📌 Project Status
 
-> ⚠️ **Em desenvolvimento ativo.** Estruturas de pacotes, rotas e integrações estão sendo refinadas continuamente.
+> ⚠️ **Under active development.** Package structures, routes, and integrations are being continuously refined.
