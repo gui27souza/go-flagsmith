@@ -47,3 +47,9 @@ go test -json ./... | tparse -all
 go test -coverprofile=coverage.out ./...
 go tool cover -html=coverage.out
 ```
+
+## 24/8
+
+- Fiz uns refinamentos no DevEx, cons uns ajustezinhos no `Makefile`, e com checagem de env e alguns encadeamentos de comando
+- Pude finalmente testar a aplicação! E deu tudo certo!!
+    - Funcionou o start do servidor, hidradação das flags e os endpoints de saúde `/healthz` e `/readyz`!!
