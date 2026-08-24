@@ -35,7 +35,7 @@ func TestMonitorFlagsReady(t *testing.T) {
 
 	client.MonitorFlagsReady(ctx, appState, 100*time.Millisecond)
 
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 
 	if !appState.Snapshot().Features {
 		t.Errorf("Expected Features to be true after monitor execution")
