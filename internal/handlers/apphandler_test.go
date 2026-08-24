@@ -25,7 +25,8 @@ func (m *mockFlagsService) MonitorFlagsReady(
 	ctx context.Context,
 	appState *state.State,
 	interval time.Duration,
-) {}
+) {
+}
 
 func setupRouter(h *handlers.AppHandler) *gin.Engine {
 	gin.SetMode(gin.TestMode)

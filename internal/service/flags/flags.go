@@ -12,7 +12,6 @@ type Reader interface {
 }
 
 type Service interface {
-
 	Reader
 
 	MonitorFlagsReady(
