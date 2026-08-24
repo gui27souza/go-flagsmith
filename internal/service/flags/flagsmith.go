@@ -13,15 +13,12 @@ type flagsmithSDK interface {
 	GetEnvironmentFlags(ctx context.Context) (flagsmith.Flags, error)
 }
 
-type Service interface {
-	IsFeatureEnabled(ctx context.Context, featureName string) bool
-}
-
 type Client struct {
 	sdk flagsmithSDK
 }
 
-func NewClient(ctx context.Context, apiKey string) *Client {
+func NewClient(ctx context.Context, apiKey string) Service {
+
 	if apiKey == "" {
 		log.Fatalf("FATAL: FLAGSMITH_API_KEY environment variable is required")
 	}
@@ -37,7 +34,7 @@ func NewClient(ctx context.Context, apiKey string) *Client {
 }
 
 // Testable Constructor
-func NewClientWithSDK(sdk flagsmithSDK) *Client {
+func NewClientWithSDK(sdk flagsmithSDK) Service {
 	return &Client{sdk: sdk}
 }
 
@@ -85,4 +82,9 @@ func (c *Client) IsFeatureEnabled(ctx context.Context, featureName string) bool 
 		return false
 	}
 	return enabled
+}
+
+// TODO - implement Flagsmith GetJSONConfig
+func (c *Client) GetJSONConfig(ctx context.Context, configName string) (string, error) {
+	return "", nil
 }
