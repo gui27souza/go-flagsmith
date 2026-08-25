@@ -30,7 +30,7 @@ func main() {
 
 	h := handlers.NewAppHandler(appState, flagsSvc)
 
-	engine := router.NewEngine(flagsSvc)
+	engine := router.NewEngine(flagsSvc, appState)
 	rh := handlers.NewRouteHandler(engine)
 
 	router := gin.Default()
