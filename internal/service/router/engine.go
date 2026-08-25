@@ -2,8 +2,10 @@ package router
 
 import (
 	"context"
+	"encoding/json"
 	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/state"
+	"slices"
 	"time"
 )
 
@@ -35,26 +37,41 @@ type DecideRes struct {
 	Telemetry TelemetryData `json:"telemetry"`
 }
 
+type CanaryRoutingRules struct {
+	Percentage int      `json:"canary_percentage"`
+	Countries  []string `json:"allowed_countries"`
+}
+
 // TODO - implement Route logic
 func (e *Engine) Route(
 	ctx context.Context, req DecideReq,
 ) (DecideRes, error) {
 
 	if !e.fr.IsFeatureEnabled(ctx, "enable_v2_routing") {
-		return DecideRes{
-			Target:    "v1",
-			Reason:    "v2 routing not enabled",
-			Telemetry: e.getTelemetryData(),
-		}, nil
+		return e.deniedRouting("v2 routing not enabled"), nil
 	}
 
-	// TODO - Define res Target and Reason
-	// Define Target based on userID and flag,
-	// by consequence, define Reason
+	rulesJSON, err := e.fr.GetJSONConfig(ctx, "canary_routing_rules")
+	if err != nil {
+		return e.deniedRouting("internal error on canary rules fetching"), nil
+	}
 
+	var rules CanaryRoutingRules
+	if err := json.Unmarshal([]byte(rulesJSON), &rules); err != nil {
+		return e.deniedRouting("internal error on canary rules parsing"), nil
+	}
+
+	// TODO - deal with case normalization
+	if !slices.Contains(rules.Countries, req.Country) {
+		return e.deniedRouting("unavailable for user country"), nil
+	}
+
+	// TODO - Define res Target
+
+	var target string
 	return DecideRes{
-		Target:    "",
-		Reason:    "",
+		Target:    target,
+		Reason:    "canary sorting rules",
 		Telemetry: e.getTelemetryData(),
 	}, nil
 }
@@ -64,5 +81,13 @@ func (e *Engine) getTelemetryData() TelemetryData {
 	return TelemetryData{
 		EvaluatedAt:   time.Now(),
 		CacheHydrated: snapshot.Features,
+	}
+}
+
+func (e *Engine) deniedRouting(msg string) DecideRes {
+	return DecideRes{
+		Target:    "v1",
+		Reason:    msg,
+		Telemetry: e.getTelemetryData(),
 	}
 }
