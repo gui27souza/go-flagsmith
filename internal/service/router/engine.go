@@ -1,5 +1,19 @@
 package router
 
+import (
+	"context"
+	"goflagsmith/internal/service/flags"
+	"time"
+)
+
+type Engine struct {
+	fr flags.Reader
+}
+
+func NewEngine(fr flags.Reader) *Engine {
+	return &Engine{fr: fr}
+}
+
 type DecideReq struct {
 	UserID     string `json:"user_id"`
 	Country    string `json:"country"`
@@ -17,3 +31,9 @@ type DecideRes struct {
 	Telemetry TelemetryData `json:"telemetry"`
 }
 
+// TODO - implement Route logic
+func (e *Engine) Route(
+	ctx context.Context, req DecideReq,
+) (DecideRes, error) {
+	return DecideRes{}, nil
+}
