@@ -72,3 +72,14 @@ go tool cover -html=coverage.out
         - Erro ao parsear regras de canary routing
         - Feature desabilitada para o país do usuário
     - O próximo passo é implementar o roteamento real com o hash em cima do id do cliente
+
+- Fiz uma normalização otimizada da verificação do país do usuário no roteamento
+- Fiz a implementação do roteamento real usando hash!!
+    - criei um utils/hash e implementei um normalizador em hash de 0 a 100
+    - Com essa normalização de porcentagem, consegui fazer o roteamento de Canary percentual com base no bucket do hash do user id!!
+- Implementei a busca de config json no flagsmith
+
+- Com isso, melhorei a documentação do engine.go e flagsmith.go
+
+- Criei também testes automatizados do hash
+    - Com ele, aprendi a filosofia de que um teste também é importante para alertar mudanças em comportamentos estáticos/determinísticos!
