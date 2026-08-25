@@ -11,6 +11,7 @@ import (
 
 	"goflagsmith/internal/handlers"
 	"goflagsmith/internal/service/flags"
+	"goflagsmith/internal/service/router"
 	"goflagsmith/internal/state"
 )
 
@@ -29,6 +30,9 @@ func main() {
 
 	h := handlers.NewAppHandler(appState, flagsSvc)
 
+	engine := router.NewEngine(flagsSvc)
+	rh := handlers.NewRouteHandler(engine)
+
 	router := gin.Default()
 
 	router.GET("/healthz", func(c *gin.Context) {
@@ -36,6 +40,8 @@ func main() {
 	})
 
 	router.GET("/readyz", h.Readyz)
+
+	router.POST("/decide", rh.Handle)
 
 	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("FATAL: HTTP server terminated with error: %v", err)
