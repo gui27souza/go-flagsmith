@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// Engine is responsible for making traffic routing decisions
+// based on feature flags and dynamic canary rules.
 type Engine struct {
 	fr flags.Reader
 	s  *state.State
@@ -21,28 +23,36 @@ func NewEngine(fr flags.Reader, s *state.State) *Engine {
 	}
 }
 
+// DecideReq defines the client context data required
+// to make a routing decision.
 type DecideReq struct {
 	UserID     string `json:"user_id"`
 	Country    string `json:"country"`
 	AppVersion string `json:"app_version"`
 }
 
+// TelemetryData encapsulates telemetry metadata about the routing evaluation.
 type TelemetryData struct {
 	EvaluatedAt   time.Time `json:"evaluated_at"`
 	CacheHydrated bool      `json:"cache_hydrated"`
 }
 
+// DecideRes represents the response payload containing the final routing decision.
 type DecideRes struct {
 	Target    string        `json:"target"`
 	Reason    string        `json:"reason"`
 	Telemetry TelemetryData `json:"telemetry"`
 }
 
+// CanaryRoutingRules defines the dynamic configuration structure
+// retrieved via Remote Config.
 type CanaryRoutingRules struct {
 	Percentage int      `json:"canary_percentage"`
 	Countries  []string `json:"allowed_countries"`
 }
 
+// Route evaluates the user context and deterministically decides whether the
+// traffic should be routed to the stable version ("v1") or the canary version ("v2").
 func (e *Engine) Route(
 	ctx context.Context, req DecideReq,
 ) (DecideRes, error) {
@@ -56,6 +66,7 @@ func (e *Engine) Route(
 		return e.deniedRouting("internal error on canary rules fetching"), nil
 	}
 
+	// PERF - parse rules once, somewhere else
 	var rules CanaryRoutingRules
 	if err := json.Unmarshal([]byte(rulesJSON), &rules); err != nil {
 		return e.deniedRouting("internal error on canary rules parsing"), nil
