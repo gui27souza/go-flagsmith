@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/state"
+	"goflagsmith/internal/util/hash"
 	"strings"
 	"time"
 )
@@ -42,7 +43,6 @@ type CanaryRoutingRules struct {
 	Countries  []string `json:"allowed_countries"`
 }
 
-// TODO - implement Route logic
 func (e *Engine) Route(
 	ctx context.Context, req DecideReq,
 ) (DecideRes, error) {
@@ -72,9 +72,13 @@ func (e *Engine) Route(
 		return e.deniedRouting("unavailable for user country"), nil
 	}
 
-	// TODO - Define res Target
+	usrBucket := hash.NormalizedHash(req.UserID)
 
-	var target string
+	target := "v1"
+	if usrBucket < rules.Percentage {
+		target = "v2"
+	}
+
 	return DecideRes{
 		Target:    target,
 		Reason:    "canary sorting rules",
