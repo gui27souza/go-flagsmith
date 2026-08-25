@@ -84,7 +84,22 @@ func (c *Client) IsFeatureEnabled(ctx context.Context, featureName string) bool 
 	return enabled
 }
 
-// TODO - implement Flagsmith GetJSONConfig
 func (c *Client) GetJSONConfig(ctx context.Context, configName string) (string, error) {
-	return "", nil
+
+	flags, err := c.sdk.GetEnvironmentFlags(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	value, err := flags.GetFeatureValue(configName)
+	if err != nil {
+		return "", err
+	}
+
+	strValue, ok := value.(string)
+	if !ok {
+		return "", nil
+	}
+
+	return strValue, nil
 }
