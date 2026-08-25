@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/state"
-	"slices"
+	"strings"
 	"time"
 )
 
@@ -61,8 +61,14 @@ func (e *Engine) Route(
 		return e.deniedRouting("internal error on canary rules parsing"), nil
 	}
 
-	// TODO - deal with case normalization
-	if !slices.Contains(rules.Countries, req.Country) {
+	var allowCountry bool
+	for _, country := range rules.Countries {
+		if strings.EqualFold(country, req.Country) {
+			allowCountry = true
+			break
+		}
+	}
+	if !allowCountry {
 		return e.deniedRouting("unavailable for user country"), nil
 	}
 
