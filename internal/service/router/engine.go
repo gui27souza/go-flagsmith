@@ -40,18 +40,29 @@ func (e *Engine) Route(
 	ctx context.Context, req DecideReq,
 ) (DecideRes, error) {
 
+	if !e.fr.IsFeatureEnabled(ctx, "enable_v2_routing") {
+		return DecideRes{
+			Target:    "v1",
+			Reason:    "v2 routing not enabled",
+			Telemetry: e.getTelemetryData(),
+		}, nil
+	}
+
 	// TODO - Define res Target and Reason
 	// Define Target based on userID and flag,
 	// by consequence, define Reason
 
-	snapshot := e.s.Snapshot()
-
 	return DecideRes{
-		Target: "",
-		Reason: "",
-		Telemetry: TelemetryData{
-			EvaluatedAt:   time.Now(),
-			CacheHydrated: snapshot.Features,
-		},
+		Target:    "",
+		Reason:    "",
+		Telemetry: e.getTelemetryData(),
 	}, nil
+}
+
+func (e *Engine) getTelemetryData() TelemetryData {
+	snapshot := e.s.Snapshot()
+	return TelemetryData{
+		EvaluatedAt:   time.Now(),
+		CacheHydrated: snapshot.Features,
+	}
 }
