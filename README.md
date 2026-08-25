@@ -1,6 +1,6 @@
 # go-flagsmith
 
-A REST microservice in Go designed to demonstrate resilience patterns, observability, and dynamic feature flag consumption using the Flagsmith SDK.
+A REST microservice in Go acting as a **Dynamic Routing Engine (Canary Engine)**. It is designed to demonstrate resilience patterns, observability, and dynamic feature flag consumption using the Flagsmith SDK.
 
 This project is part of building a foundation for an Internal Developer Platform (IDP).
 
@@ -8,10 +8,11 @@ This project is part of building a foundation for an Internal Developer Platform
 
 ## 🎯 Project Objectives
 
+- **Dynamic Routing:** Deterministic Canary releases and traffic routing based on user context.
 - **Feature Flags & Remote Config:** Highly efficient consumption focused on low latency and network failure resilience.
 - **Lifecycle Probes:** `/healthz` (liveness) and `/readyz` (readiness) endpoints reflecting the actual state of application subsystems.
 - **Resilience:** Safe fallback strategies to prevent downtime during external service instability.
-- **Go Best Practices:** Safe concurrency (`sync.RWMutex`), dependency injection, and automated testing.
+- **Go Best Practices:** Safe concurrency (`sync.RWMutex`), dependency injection, clean architecture, and automated testing.
 
 ---
 
