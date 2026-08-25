@@ -60,3 +60,15 @@ go tool cover -html=coverage.out
     - Levando em conta as flags de roteamento:
         - Se a flag geral de v2 esta ligada
         - Flag de configuração sobre o roteamento: percentual de clientes a serem direcionados à v2, países permitidos, etc
+
+## 25/8
+
+- Hoje comecei a implementar a lógica real de roteamento, com base nas flags e configs
+    - Comecei com os kill switches e denied routing
+    - Criei também métodos auxiliares, para o snapshot do state e gerar o response de denied
+    - Fiz os casos de denied:
+        - Feature v2 desabilitada
+        - Erro ao buscar regras de canary routing
+        - Erro ao parsear regras de canary routing
+        - Feature desabilitada para o país do usuário
+    - O próximo passo é implementar o roteamento real com o hash em cima do id do cliente
