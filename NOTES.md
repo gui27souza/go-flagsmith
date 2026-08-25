@@ -54,4 +54,9 @@ go tool cover -html=coverage.out
 - Pude finalmente testar a aplicação! E deu tudo certo!!
     - Funcionou o start do servidor, hidradação das flags e os endpoints de saúde `/healthz` e `/readyz`!!
 
-- Para o encor
+- Para o encorpar o objetivo do projeto, tomei a decisão de implementar um roteamento dinâmico de requisições.
+- Basicamente, o microserviço será responsável por dizer se o cliente X deve ser direcionado a versão v1 ou v2 de dada aplicação:
+    - Com base no seu ID
+    - Levando em conta as flags de roteamento:
+        - Se a flag geral de v2 esta ligada
+        - Flag de configuração sobre o roteamento: percentual de clientes a serem direcionados à v2, países permitidos, etc
