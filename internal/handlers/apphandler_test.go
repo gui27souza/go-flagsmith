@@ -1,32 +1,16 @@
 package handlers_test
 
 import (
-	"context"
 	"encoding/json"
 	"goflagsmith/internal/handlers"
+	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/state"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
-
-type mockFlagsService struct{}
-
-func (m *mockFlagsService) IsFeatureEnabled(ctx context.Context, featureName string) bool {
-	return true
-}
-func (m *mockFlagsService) GetJSONConfig(ctx context.Context, configName string) (string, error) {
-	return "", nil
-}
-func (m *mockFlagsService) MonitorFlagsReady(
-	ctx context.Context,
-	appState *state.State,
-	interval time.Duration,
-) {
-}
 
 func setupRouter(h *handlers.AppHandler) *gin.Engine {
 	gin.SetMode(gin.TestMode)
@@ -38,7 +22,9 @@ func setupRouter(h *handlers.AppHandler) *gin.Engine {
 func TestReadyz_NotReady(t *testing.T) {
 
 	appState := state.NewState()
-	mockFlags := &mockFlagsService{}
+	mockFlags := flags.NewMockService(
+		flags.NewMockReader(true, "", nil),
+	)
 
 	h := handlers.NewAppHandler(appState, mockFlags)
 
@@ -73,7 +59,9 @@ func TestReadyz_Ready(t *testing.T) {
 	appState.SetClientsReady()
 	appState.SetFeaturesReady()
 
-	mockFlags := &mockFlagsService{}
+	mockFlags := flags.NewMockService(
+		flags.NewMockReader(true, "", nil),
+	)
 	h := handlers.NewAppHandler(appState, mockFlags)
 	router := setupRouter(h)
 
