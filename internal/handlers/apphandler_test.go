@@ -3,8 +3,8 @@ package handlers_test
 import (
 	"encoding/json"
 	"goflagsmith/internal/handlers"
-	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/state"
+	"goflagsmith/internal/testutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,7 +13,7 @@ import (
 )
 
 func setupMockRouterReadyz(handler *handlers.AppHandler) *gin.Engine {
-	return handlers.MockRouter(
+	return testutil.MockRouter(
 		http.MethodGet, "/readyz", handler.Readyz,
 	)
 }
@@ -21,8 +21,8 @@ func setupMockRouterReadyz(handler *handlers.AppHandler) *gin.Engine {
 func TestReadyz_NotReady(t *testing.T) {
 
 	appState := state.NewState()
-	mockFlags := flags.NewMockService(
-		flags.NewMockReader(true, "", nil),
+	mockFlags := testutil.NewMockService(
+		testutil.NewMockReader(true, "", nil),
 	)
 
 	h := handlers.NewAppHandler(appState, mockFlags)
@@ -58,8 +58,8 @@ func TestReadyz_Ready(t *testing.T) {
 	appState.SetClientsReady()
 	appState.SetFeaturesReady()
 
-	mockFlags := flags.NewMockService(
-		flags.NewMockReader(true, "", nil),
+	mockFlags := testutil.NewMockService(
+		testutil.NewMockReader(true, "", nil),
 	)
 	h := handlers.NewAppHandler(appState, mockFlags)
 	router := setupMockRouterReadyz(h)

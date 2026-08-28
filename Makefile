@@ -17,9 +17,10 @@ test:
 	@echo "Testing..."
 	@go test -v ./...
 
+COVER_PKGS := $$(go list ./internal/... | grep -v '/testutil' | paste -sd, -)
 coverage:
 	@echo "Testing and checking coverage..."
-	@go test -coverprofile=coverage.out ./...
+	@go test -coverprofile=coverage.out -coverpkg=$(COVER_PKGS) ./internal/...
 	@go tool cover -html=coverage.out
 
 check-env:
