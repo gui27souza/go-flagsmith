@@ -12,11 +12,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setupRouter(h *handlers.AppHandler) *gin.Engine {
-	gin.SetMode(gin.TestMode)
-	r := gin.New()
-	r.GET("/readyz", h.Readyz)
-	return r
+func setupMockRouterReadyz(handler *handlers.AppHandler) *gin.Engine {
+	return handlers.MockRouter(
+		http.MethodGet, "/readyz", handler.Readyz,
+	)
 }
 
 func TestReadyz_NotReady(t *testing.T) {
@@ -28,7 +27,7 @@ func TestReadyz_NotReady(t *testing.T) {
 
 	h := handlers.NewAppHandler(appState, mockFlags)
 
-	router := setupRouter(h)
+	router := setupMockRouterReadyz(h)
 
 	// Simulates a GET request to /readyz
 	req, _ := http.NewRequest(http.MethodGet, "/readyz", nil)
@@ -63,7 +62,7 @@ func TestReadyz_Ready(t *testing.T) {
 		flags.NewMockReader(true, "", nil),
 	)
 	h := handlers.NewAppHandler(appState, mockFlags)
-	router := setupRouter(h)
+	router := setupMockRouterReadyz(h)
 
 	// Simulates a GET request to /readyz
 	req, _ := http.NewRequest(http.MethodGet, "/readyz", nil)
