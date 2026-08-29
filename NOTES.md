@@ -136,3 +136,14 @@ go tool cover -html=coverage.out
                 hash.go
                 hash_test.go
 ```
+
+## 29/8
+
+- Acho que finalmente entendi na prática o que é Dependency Inversion:
+  - Para tornar os testes de router.Engine mais "testáveis", precisei remover a dependência direta que a estrutura tinha com o cálculo de bucket, que estava preso à função de Hash Normalizado e também ao time.Now() do response
+  - A ideia foi passar tipos de função meio genéricos, especificando apenas a interface do que precisava delas
+  - Com isso, consegui moldar essas dependências ao meu dispor, facilitando os testes, sem precisar ficar fazendo gambiarras:
+    - Principalmente com as comparações do time.Now, complicava bastante no assert
+    - Ou em ter q deixar o bucket que dado hash para dado input cairia hardcoded
+  - Isso abriu caminho para o próximo passo dos testes: Table-Driven
+- Também tornei o Makefile agnóstico ao SO, funcionando para windows ou linux/mac
