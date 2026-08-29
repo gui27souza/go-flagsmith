@@ -18,5 +18,5 @@ The microservice must be able to make real-time decisions about traffic destinat
 - [X] **SDK Integration:** Configure the Flagsmith client with in-memory caching and synchronization intervals.
 - [X] **Safe Fallback Pattern:** Ensure that network failures or API timeouts do not cause HTTP 500 errors (utilizing predefined default values).
 - [X] **Observability & Health Checks:** `/healthz` (liveness) and `/readyz` (readiness) endpoints accurately reflecting application integrity and cache hydration state.
-- [ ] **Dynamic Canary Engine:** Create the `router` package and the `/api/v1/route` endpoint to route traffic deterministically (via hashing over user context) based on Remote Configs.
+- [X] **Dynamic Canary Engine:** Create the `router` package and the `/api/v1/route` endpoint to route traffic deterministically (via hashing over user context) based on Remote Configs.
 - [ ] **Automated Testing:** Unit tests utilizing clean *interfaces* (e.g., `flags.Reader`) and *mocks* to simulate routing scenarios and failure behaviors.

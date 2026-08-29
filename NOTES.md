@@ -83,3 +83,56 @@ go tool cover -html=coverage.out
 
 - Criei também testes automatizados do hash
     - Com ele, aprendi a filosofia de que um teste também é importante para alertar mudanças em comportamentos estáticos/determinísticos!
+
+## 26/8 a 28/8
+
+- Aprendi a como criar mocks e como me organizar melhor, junto da proximidade de quem os usa:
+  - Se o uso for apenas do mesmo pacote, o ideal é criar um mocks.go e manter o princípio de localidade
+  - Agora, se for algo usado por outras partes do código, o ideal é padronizar um `testutil/` com geradores de mocks
+
+- Ajustei também o Makefile para refletir melhor a cobertura de testes, ignorando os arquivosde teste, `cmd/` e os mocks
+
+- Com esses novos conhecimentos, criei o RouteHandler test, restando apenas o Router test
+
+- Essa é a visão até agr:
+
+```
+.
+│   .gitignore
+│   AGENTS.md
+│   Dockerfile
+│   go.mod
+│   go.sum
+│   lefthook.yml
+│   Makefile
+│   NOTES.md
+│   PROJECT.md
+│   README.md
+├───cmd
+│   └───api
+│           main.go
+└───internal
+    ├───handlers
+    │       apphandler.go
+    │       apphandler_test.go
+    │       route_handler.go
+    │       route_handler_test.go
+    ├───service
+    │   ├───flags
+    │   │       flags.go
+    │   │       flagsmith.go
+    │   │       flagsmith_test.go
+    │   └───router
+    │           engine.go
+    │           engine_test.go
+    ├───state
+    │       state.go
+    │       state_test.go
+    ├───testutil
+    │       flags.go
+    │       router.go
+    └───util
+        └───hash
+                hash.go
+                hash_test.go
+```
