@@ -5,21 +5,27 @@ import (
 	"encoding/json"
 	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/state"
-	"goflagsmith/internal/util/hash"
 	"strings"
 	"time"
 )
 
+type BucketCalculator func(expression string) int
+type Now func() time.Time
+
 // Engine is responsible for making traffic routing decisions
 // based on feature flags and dynamic canary rules.
 type Engine struct {
-	fr flags.Reader
-	s  *state.State
+	fr  flags.Reader
+	s   *state.State
+	bc  BucketCalculator
+	now Now
 }
 
-func NewEngine(fr flags.Reader, s *state.State) *Engine {
+func NewEngine(
+	fr flags.Reader, s *state.State, bc BucketCalculator, now Now,
+) *Engine {
 	return &Engine{
-		fr: fr, s: s,
+		fr: fr, s: s, bc: bc, now: now,
 	}
 }
 
@@ -83,7 +89,7 @@ func (e *Engine) Route(
 		return e.deniedRouting("unavailable for user country"), nil
 	}
 
-	usrBucket := hash.NormalizedHash(req.UserID)
+	usrBucket := e.bc(req.UserID)
 
 	target := "v1"
 	if usrBucket < rules.Percentage {
@@ -100,7 +106,7 @@ func (e *Engine) Route(
 func (e *Engine) getTelemetryData() TelemetryData {
 	snapshot := e.s.Snapshot()
 	return TelemetryData{
-		EvaluatedAt:   time.Now(),
+		EvaluatedAt:   e.now(),
 		CacheHydrated: snapshot.Features,
 	}
 }

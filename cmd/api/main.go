@@ -13,6 +13,7 @@ import (
 	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/service/router"
 	"goflagsmith/internal/state"
+	"goflagsmith/internal/util/hash"
 )
 
 func main() {
@@ -30,7 +31,9 @@ func main() {
 
 	h := handlers.NewAppHandler(appState, flagsSvc)
 
-	engine := router.NewEngine(flagsSvc, appState)
+	engine := router.NewEngine(
+		flagsSvc, appState, hash.NormalizedHash, time.Now,
+	)
 	rh := handlers.NewRouteHandler(engine)
 
 	router := gin.Default()

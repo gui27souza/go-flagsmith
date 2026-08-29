@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +32,11 @@ func TestRouteHandler_Success(t *testing.T) {
 	)
 
 	rh := handlers.NewRouteHandler(
-		router.NewEngine(mockReader, state),
+		router.NewEngine(
+			mockReader, state,
+			func(expression string) int { return 0 },
+			time.Now,
+		),
 	)
 
 	ginRouter := setupMockRouterDecide(rh)
