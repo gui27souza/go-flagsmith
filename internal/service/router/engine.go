@@ -61,21 +61,21 @@ type CanaryRoutingRules struct {
 // traffic should be routed to the stable version ("v1") or the canary version ("v2").
 func (e *Engine) Route(
 	ctx context.Context, req DecideReq,
-) (DecideRes, error) {
+) DecideRes {
 
 	if !e.fr.IsFeatureEnabled(ctx, "enable_v2_routing") {
-		return e.deniedRouting("v2 routing not enabled"), nil
+		return e.deniedRouting("v2 routing not enabled")
 	}
 
 	rulesJSON, err := e.fr.GetJSONConfig(ctx, "canary_routing_rules")
 	if err != nil {
-		return e.deniedRouting("internal error on canary rules fetching"), nil
+		return e.deniedRouting("internal error on canary rules fetching")
 	}
 
 	// PERF - parse rules once, somewhere else
 	var rules CanaryRoutingRules
 	if err := json.Unmarshal([]byte(rulesJSON), &rules); err != nil {
-		return e.deniedRouting("internal error on canary rules parsing"), nil
+		return e.deniedRouting("internal error on canary rules parsing")
 	}
 
 	var allowCountry bool
@@ -86,7 +86,7 @@ func (e *Engine) Route(
 		}
 	}
 	if !allowCountry {
-		return e.deniedRouting("unavailable for user country"), nil
+		return e.deniedRouting("unavailable for user country")
 	}
 
 	usrBucket := e.bc(req.UserID)
@@ -100,7 +100,7 @@ func (e *Engine) Route(
 		Target:    target,
 		Reason:    "canary sorting rules",
 		Telemetry: e.getTelemetryData(),
-	}, nil
+	}
 }
 
 func (e *Engine) getTelemetryData() TelemetryData {

@@ -26,14 +26,7 @@ func (rh *RouteHandler) Handle(c *gin.Context) {
 		return
 	}
 
-	res, err := rh.eng.Route(c.Request.Context(), req)
-	if err != nil {
-		c.JSON(
-			http.StatusInternalServerError,
-			gin.H{"error": "Failed to evaluate route"},
-		)
-		return
-	}
+	res := rh.eng.Route(c.Request.Context(), req)
 
 	c.JSON(http.StatusOK, res)
 }

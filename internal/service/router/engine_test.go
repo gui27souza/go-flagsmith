@@ -38,10 +38,7 @@ func TestRoute_Success(t *testing.T) {
 		AppVersion: "1.27",
 	}
 
-	res, err := mockEngine.Route(t.Context(), req)
-	if err != nil {
-		t.Fatalf("failed to route request: %v", err)
-	}
+	res := mockEngine.Route(t.Context(), req)
 
 	expectedRes := router.DecideRes{
 		Target: "v2",
