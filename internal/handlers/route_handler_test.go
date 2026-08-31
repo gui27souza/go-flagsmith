@@ -70,3 +70,40 @@ func TestRouteHandler_Success(t *testing.T) {
 		t.Errorf("expected telemetry evaluated_at to be populated")
 	}
 }
+
+func TestRouteHandler_ErrorBadRequest(t *testing.T) {
+
+	state := state.NewState()
+
+	mockReader := testutil.NewMockReader(
+		true,
+		`{"canary_percentage": 50, "allowed_countries": ["BR"]}`,
+		nil,
+	)
+
+	rh := handlers.NewRouteHandler(
+		router.NewEngine(
+			mockReader, state,
+			func(expression string) int { return 0 },
+			time.Now,
+		),
+	)
+
+	ginRouter := setupMockRouterDecide(rh)
+
+	jsonBody := []byte(`{
+		"user_id": "user_broken,
+		"country": "BR",
+		"app_version": "1.27"
+	}`)
+	req, _ := http.NewRequest(
+		http.MethodPost, "/decide", bytes.NewBuffer(jsonBody),
+	)
+
+	resp := httptest.NewRecorder()
+	ginRouter.ServeHTTP(resp, req)
+
+	if resp.Code != http.StatusBadRequest {
+		t.Errorf("expected %d, got %d", http.StatusBadRequest, resp.Code)
+	}
+}
