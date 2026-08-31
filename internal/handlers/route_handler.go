@@ -11,14 +11,14 @@ type RouteHandler struct {
 	eng *router.Engine
 }
 
-func NewRouteHandler(Engine *router.Engine) *RouteHandler {
-	return &RouteHandler{eng: Engine}
+func NewRouteHandler(engine *router.Engine) *RouteHandler {
+	return &RouteHandler{eng: engine}
 }
 
 func (rh *RouteHandler) Handle(c *gin.Context) {
 
 	var req router.DecideReq
-	if err := c.BindJSON(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
 			gin.H{"error": "Invalid request payload: " + err.Error()},
