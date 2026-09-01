@@ -2,6 +2,7 @@ package flags
 
 import (
 	"context"
+	"errors"
 	"goflagsmith/internal/state"
 	"log"
 	"time"
@@ -23,10 +24,10 @@ type Client struct {
 
 // NewClient initializes and returns a concrete Client as a Service,
 // bootstrapping local evaluation and background polling configurations.
-func NewClient(ctx context.Context, apiKey string) Service {
+func NewClient(ctx context.Context, apiKey string) (Service, error) {
 
 	if apiKey == "" {
-		log.Fatalf("FATAL: FLAGSMITH_API_KEY environment variable is required")
+		return nil, errors.New("FLAGSMITH_API_KEY environment variable is required")
 	}
 
 	sdk := flagsmith.NewClient(
@@ -36,7 +37,7 @@ func NewClient(ctx context.Context, apiKey string) Service {
 		flagsmith.WithRequestTimeout(5*time.Second),
 	)
 
-	return &Client{sdk}
+	return &Client{sdk}, nil
 }
 
 // Testable Constructor

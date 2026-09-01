@@ -23,7 +23,10 @@ func main() {
 
 	appState := state.NewState()
 
-	flagsSvc := flags.NewClient(ctx, os.Getenv("FLAGSMITH_API_KEY"))
+	flagsSvc, err := flags.NewClient(ctx, os.Getenv("FLAGSMITH_API_KEY"))
+	if err != nil {
+		// TODO - gracefull shutdown
+	}
 	appState.SetClientsReady()
 	flagsSvc.MonitorFlagsReady(
 		ctx, appState, 2*time.Second,
