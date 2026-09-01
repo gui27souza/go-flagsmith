@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"bytes"
 	"encoding/json"
+	"goflagsmith/internal/domain"
 	"goflagsmith/internal/handlers"
 	"goflagsmith/internal/service/router"
 	"goflagsmith/internal/state"
@@ -57,7 +58,7 @@ func TestRouteHandler_Success(t *testing.T) {
 		t.Errorf("expected %d, got %d", http.StatusOK, resp.Code)
 	}
 
-	var res router.DecideRes
+	var res domain.RouteDecision
 	if err := json.Unmarshal(resp.Body.Bytes(), &res); err != nil {
 		t.Fatalf("failed to unmarshal response: %v", err)
 	}

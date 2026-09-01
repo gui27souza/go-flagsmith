@@ -3,6 +3,7 @@ package router
 import (
 	"context"
 	"encoding/json"
+	"goflagsmith/internal/domain"
 	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/state"
 	"strings"
@@ -29,39 +30,11 @@ func NewEngine(
 	}
 }
 
-// DecideReq defines the client context data required
-// to make a routing decision.
-type DecideReq struct {
-	UserID     string `json:"user_id"`
-	Country    string `json:"country"`
-	AppVersion string `json:"app_version"`
-}
-
-// TelemetryData encapsulates telemetry metadata about the routing evaluation.
-type TelemetryData struct {
-	EvaluatedAt   time.Time `json:"evaluated_at"`
-	CacheHydrated bool      `json:"cache_hydrated"`
-}
-
-// DecideRes represents the response payload containing the final routing decision.
-type DecideRes struct {
-	Target    string        `json:"target"`
-	Reason    string        `json:"reason"`
-	Telemetry TelemetryData `json:"telemetry"`
-}
-
-// CanaryRoutingRules defines the dynamic configuration structure
-// retrieved via Remote Config.
-type CanaryRoutingRules struct {
-	Percentage int      `json:"canary_percentage"`
-	Countries  []string `json:"allowed_countries"`
-}
-
 // Route evaluates the user context and deterministically decides whether the
 // traffic should be routed to the stable version ("v1") or the canary version ("v2").
 func (e *Engine) Route(
-	ctx context.Context, req DecideReq,
-) DecideRes {
+	ctx context.Context, uc domain.UserContext,
+) domain.RouteDecision {
 
 	if !e.fr.IsFeatureEnabled(ctx, "enable_v2_routing") {
 		return e.deniedRouting("v2 routing not enabled")
@@ -73,14 +46,14 @@ func (e *Engine) Route(
 	}
 
 	// PERF - parse rules once, somewhere else
-	var rules CanaryRoutingRules
+	var rules domain.CanaryRoutingRules
 	if err := json.Unmarshal([]byte(rulesJSON), &rules); err != nil {
 		return e.deniedRouting("internal error on canary rules parsing")
 	}
 
 	var allowCountry bool
 	for _, country := range rules.Countries {
-		if strings.EqualFold(country, req.Country) {
+		if strings.EqualFold(country, uc.Country) {
 			allowCountry = true
 			break
 		}
@@ -89,30 +62,30 @@ func (e *Engine) Route(
 		return e.deniedRouting("unavailable for user country")
 	}
 
-	usrBucket := e.bc(req.UserID)
+	usrBucket := e.bc(uc.UserID)
 
 	target := "v1"
 	if usrBucket < rules.Percentage {
 		target = "v2"
 	}
 
-	return DecideRes{
+	return domain.RouteDecision{
 		Target:    target,
 		Reason:    "canary sorting rules",
 		Telemetry: e.getTelemetryData(),
 	}
 }
 
-func (e *Engine) getTelemetryData() TelemetryData {
+func (e *Engine) getTelemetryData() domain.TelemetryData {
 	snapshot := e.s.Snapshot()
-	return TelemetryData{
+	return domain.TelemetryData{
 		EvaluatedAt:   e.now(),
 		CacheHydrated: snapshot.Features,
 	}
 }
 
-func (e *Engine) deniedRouting(msg string) DecideRes {
-	return DecideRes{
+func (e *Engine) deniedRouting(msg string) domain.RouteDecision {
+	return domain.RouteDecision{
 		Target:    "v1",
 		Reason:    msg,
 		Telemetry: e.getTelemetryData(),

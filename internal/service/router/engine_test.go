@@ -2,6 +2,7 @@ package router_test
 
 import (
 	"errors"
+	"goflagsmith/internal/domain"
 	"goflagsmith/internal/service/router"
 	"goflagsmith/internal/state"
 	"goflagsmith/internal/testutil"
@@ -20,22 +21,26 @@ func TestRoute(t *testing.T) {
 	fixedTime := time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
 	mockNow := func() time.Time { return fixedTime }
 
-	defaultReq := router.DecideReq{
+	defaultReq := domain.UserContext{
 		UserID:     "user_1234",
 		Country:    "br",
 		AppVersion: "1.27",
 	}
 	defaultJSONConfig := `{"canary_percentage": 50, "allowed_countries": ["BR"]}`
 	defaultBc := func(str string) int { return 0 }
+	defaultTelemetry := domain.TelemetryData{
+		EvaluatedAt:   fixedTime,
+		CacheHydrated: s.Snapshot().Features,
+	}
 
 	tests := []struct {
 		name          string
-		req           router.DecideReq
+		req           domain.UserContext
 		featEnable    bool
 		jsonConfig    string
 		errJSONConfig error
 		bc            router.BucketCalculator
-		wantRes       router.DecideRes
+		wantRes       domain.RouteDecision
 	}{
 		{
 			name:          "succesfull routing to v2",
@@ -44,13 +49,10 @@ func TestRoute(t *testing.T) {
 			jsonConfig:    defaultJSONConfig,
 			errJSONConfig: nil,
 			bc:            defaultBc,
-			wantRes: router.DecideRes{
-				Target: "v2",
-				Reason: "canary sorting rules",
-				Telemetry: router.TelemetryData{
-					EvaluatedAt:   fixedTime,
-					CacheHydrated: s.Snapshot().Features,
-				},
+			wantRes: domain.RouteDecision{
+				Target:    "v2",
+				Reason:    "canary sorting rules",
+				Telemetry: defaultTelemetry,
 			},
 		},
 		{
@@ -60,13 +62,10 @@ func TestRoute(t *testing.T) {
 			jsonConfig:    defaultJSONConfig,
 			errJSONConfig: nil,
 			bc:            func(str string) int { return 60 },
-			wantRes: router.DecideRes{
-				Target: "v1",
-				Reason: "canary sorting rules",
-				Telemetry: router.TelemetryData{
-					EvaluatedAt:   fixedTime,
-					CacheHydrated: s.Snapshot().Features,
-				},
+			wantRes: domain.RouteDecision{
+				Target:    "v1",
+				Reason:    "canary sorting rules",
+				Telemetry: defaultTelemetry,
 			},
 		},
 		{
@@ -76,13 +75,10 @@ func TestRoute(t *testing.T) {
 			jsonConfig:    "",
 			errJSONConfig: nil,
 			bc:            defaultBc,
-			wantRes: router.DecideRes{
-				Target: "v1",
-				Reason: "v2 routing not enabled",
-				Telemetry: router.TelemetryData{
-					EvaluatedAt:   fixedTime,
-					CacheHydrated: s.Snapshot().Features,
-				},
+			wantRes: domain.RouteDecision{
+				Target:    "v1",
+				Reason:    "v2 routing not enabled",
+				Telemetry: defaultTelemetry,
 			},
 		},
 		{
@@ -92,13 +88,10 @@ func TestRoute(t *testing.T) {
 			jsonConfig:    "",
 			errJSONConfig: errors.New("something went wrong"),
 			bc:            defaultBc,
-			wantRes: router.DecideRes{
-				Target: "v1",
-				Reason: "internal error on canary rules fetching",
-				Telemetry: router.TelemetryData{
-					EvaluatedAt:   fixedTime,
-					CacheHydrated: s.Snapshot().Features,
-				},
+			wantRes: domain.RouteDecision{
+				Target:    "v1",
+				Reason:    "internal error on canary rules fetching",
+				Telemetry: defaultTelemetry,
 			},
 		},
 		{
@@ -108,18 +101,15 @@ func TestRoute(t *testing.T) {
 			jsonConfig:    `{"broken}`,
 			errJSONConfig: nil,
 			bc:            defaultBc,
-			wantRes: router.DecideRes{
-				Target: "v1",
-				Reason: "internal error on canary rules parsing",
-				Telemetry: router.TelemetryData{
-					EvaluatedAt:   fixedTime,
-					CacheHydrated: s.Snapshot().Features,
-				},
+			wantRes: domain.RouteDecision{
+				Target:    "v1",
+				Reason:    "internal error on canary rules parsing",
+				Telemetry: defaultTelemetry,
 			},
 		},
 		{
 			name: "v2 unavailable for user country",
-			req: router.DecideReq{
+			req: domain.UserContext{
 				UserID:     "user_1234",
 				Country:    "Us",
 				AppVersion: "1.27",
@@ -128,13 +118,10 @@ func TestRoute(t *testing.T) {
 			jsonConfig:    defaultJSONConfig,
 			errJSONConfig: nil,
 			bc:            defaultBc,
-			wantRes: router.DecideRes{
-				Target: "v1",
-				Reason: "unavailable for user country",
-				Telemetry: router.TelemetryData{
-					EvaluatedAt:   fixedTime,
-					CacheHydrated: s.Snapshot().Features,
-				},
+			wantRes: domain.RouteDecision{
+				Target:    "v1",
+				Reason:    "unavailable for user country",
+				Telemetry: defaultTelemetry,
 			},
 		},
 	}

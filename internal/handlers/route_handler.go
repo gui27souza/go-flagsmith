@@ -1,23 +1,28 @@
 package handlers
 
 import (
-	"goflagsmith/internal/service/router"
+	"context"
+	"goflagsmith/internal/domain"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type RouteHandler struct {
-	eng *router.Engine
+type DecisionMaker interface {
+	Route(ctx context.Context, req domain.UserContext) domain.RouteDecision
 }
 
-func NewRouteHandler(engine *router.Engine) *RouteHandler {
-	return &RouteHandler{eng: engine}
+type RouteHandler struct {
+	dm DecisionMaker
+}
+
+func NewRouteHandler(dm DecisionMaker) *RouteHandler {
+	return &RouteHandler{dm: dm}
 }
 
 func (rh *RouteHandler) Handle(c *gin.Context) {
 
-	var req router.DecideReq
+	var req domain.UserContext
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
@@ -26,7 +31,7 @@ func (rh *RouteHandler) Handle(c *gin.Context) {
 		return
 	}
 
-	res := rh.eng.Route(c.Request.Context(), req)
+	res := rh.dm.Route(c.Request.Context(), req)
 
 	c.JSON(http.StatusOK, res)
 }
