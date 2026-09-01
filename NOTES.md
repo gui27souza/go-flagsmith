@@ -147,3 +147,12 @@ go tool cover -html=coverage.out
     - Ou em ter q deixar o bucket que dado hash para dado input cairia hardcoded
   - Isso abriu caminho para o próximo passo dos testes: Table-Driven
 - Também tornei o Makefile agnóstico ao SO, funcionando para windows ou linux/mac
+
+## 31/8 a 1/9
+
+- Entendi um pouco melhor sobre tratativa de erros, principalmente quando retornar ou nao um error em uma função
+- Avancei bastante nos testes:
+    - Aprendi Table-Driven testing como árvore de decisão testável
+    - O limite dos testes, subir cobertura só para aumentar o número é pior -> torna implementações que deveriam ser simples completas e não dão real segurança apenas por ter uma cobertura ampla
+- Entendi muito melhor sobre dependências e a importância das interfaces, como desacoplar
+    - Quebrei as structs atreladas à engine em structs de domínio, dessa forma o route_handler não precisa conhecer a engine nem vice-versa!

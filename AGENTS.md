@@ -28,24 +28,36 @@ The main focus is to build a high-throughput REST microservice in Go, acting as 
 
 ```text
 .
-├── cmd/
-│   └── api/
-│       └── main.go              # Bootstrap, fail-fast config, and dependency injection wire-up
-├── internal/
-│   ├── handlers/
-│   │   ├── apphandler.go        # HTTP Handlers for lifecycle probes (/healthz, /readyz)
-│   │   ├── apphandler_test.go   
-│   │   └── route_handler.go     # HTTP Handler for the routing decision endpoint (/decide)
-│   ├── service/
-│   │   ├── flags/
-│   │   │   ├── flags.go         # Clean interfaces (Reader, Service) completely decoupling the SDK
-│   │   │   ├── flagsmith.go     # Concrete SDK wrapper and cache hydration monitor
+├── cmd
+│   └── api
+│       └── main.go                 # Bootstrap, fail-fast config, and dependency injection wire-up
+├── internal
+│   ├── domain                      # Core business entities and shared domain models
+│   │   └── routing.go              # Pure data models for routing contexts, decisions, and rules
+│   ├── handlers
+│   │   ├── apphandler.go           # HTTP Handlers for lifecycle probes (/healthz, /readyz)
+│   │   ├── apphandler_test.go
+│   │   ├── route_handler.go        # HTTP Handler for the routing decision endpoint (/decide)
+│   │   └── route_handler_test.go
+│   ├── service
+│   │   ├── flags
+│   │   │   ├── flags.go            # Clean interfaces (Reader, Service) completely decoupling the SDK
+│   │   │   ├── flagsmith.go        # Concrete SDK wrapper and cache hydration monitor
 │   │   │   └── flagsmith_test.go
-│   │   └── router/
-│   │       └── engine.go        # Business logic for deterministic Canary routing and hashing
-│   └── state/
-│       ├── state.go             # Concurrency management and readiness snapshots (sync.RWMutex)
-│       └── state_test.go        
+│   │   └── router
+│   │       ├── engine.go           # Business logic for deterministic Canary routing
+│   │       └── engine_test.go
+│   ├── state
+│   │   ├── state.go                # Concurrency management and readiness snapshots (sync.RWMutex)
+│   │   └── state_test.go
+│   ├── testutil                    # Mocks and other test utils package
+│   │   ├── flags.go
+│   │   └── router.go
+│   └── util
+│       └── hash                    # Hashing util
+│           ├── hash.go
+│           └── hash_test.go
+├── Dockerfile
 ├── Makefile
 └── lefthook.yml
 ```

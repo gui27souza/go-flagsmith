@@ -25,6 +25,16 @@ This project is part of building a foundation for an Internal Developer Platform
 
 ---
 
+## 📡 Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/healthz` | Liveness probe |
+| `GET` | `/readyz` | Readiness probe (validates cache hydration) |
+| `POST` | `/api/v1/route` | Evaluates user context and returns target route |
+
+---
+
 ## 🚀 How to Run
 
 ### Prerequisites
@@ -45,6 +55,18 @@ export FLAGSMITH_API_KEY="your_key_here"
 ```bash
 # Formats, vets, checks envs, and runs the application!
 make dev
+```
+
+---
+
+## 🧪 Testing & Quality
+
+```bash
+# Run unit tests with race detection
+make test
+
+# Generate coverage report
+make coverage
 ```
 
 ---
