@@ -2,7 +2,6 @@ package router
 
 import (
 	"context"
-	"encoding/json"
 	"goflagsmith/internal/domain"
 	"goflagsmith/internal/service/flags"
 	"goflagsmith/internal/state"
@@ -40,15 +39,9 @@ func (e *Engine) Route(
 		return e.deniedRouting("v2 routing not enabled")
 	}
 
-	rulesJSON, err := e.fr.GetJSONConfig(ctx, "canary_routing_rules")
+	rules, err := e.fr.GetCanaryRules(ctx)
 	if err != nil {
 		return e.deniedRouting("internal error on canary rules fetching")
-	}
-
-	// PERF - parse rules once, somewhere else
-	var rules domain.CanaryRoutingRules
-	if err := json.Unmarshal([]byte(rulesJSON), &rules); err != nil {
-		return e.deniedRouting("internal error on canary rules parsing")
 	}
 
 	var allowCountry bool

@@ -26,7 +26,7 @@ func TestRoute(t *testing.T) {
 		Country:    "br",
 		AppVersion: "1.27",
 	}
-	defaultJSONConfig := `{"canary_percentage": 50, "allowed_countries": ["BR"]}`
+	defaultRules := domain.NewCanaryRules(50, []string{"BR"})
 	defaultBc := func(str string) int { return 0 }
 	defaultTelemetry := domain.TelemetryData{
 		EvaluatedAt:   fixedTime,
@@ -34,21 +34,20 @@ func TestRoute(t *testing.T) {
 	}
 
 	tests := []struct {
-		name          string
-		req           domain.UserContext
-		featEnable    bool
-		jsonConfig    string
-		errJSONConfig error
-		bc            router.BucketCalculator
-		wantRes       domain.RouteDecision
+		name       string
+		req        domain.UserContext
+		featEnable bool
+		rules      *domain.CanaryRoutingRules
+		errRules   error
+		bc         router.BucketCalculator
+		wantRes    domain.RouteDecision
 	}{
 		{
-			name:          "succesfull routing to v2",
-			req:           defaultReq,
-			featEnable:    true,
-			jsonConfig:    defaultJSONConfig,
-			errJSONConfig: nil,
-			bc:            defaultBc,
+			name:       "succesfull routing to v2",
+			req:        defaultReq,
+			featEnable: true,
+			rules:      defaultRules,
+			bc:         defaultBc,
 			wantRes: domain.RouteDecision{
 				Target:    "v2",
 				Reason:    "canary sorting rules",
@@ -56,12 +55,11 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name:          "succesful routing to v1 - bucket calculation",
-			req:           defaultReq,
-			featEnable:    true,
-			jsonConfig:    defaultJSONConfig,
-			errJSONConfig: nil,
-			bc:            func(str string) int { return 60 },
+			name:       "succesful routing to v1 - bucket calculation",
+			req:        defaultReq,
+			featEnable: true,
+			rules:      defaultRules,
+			bc:         func(str string) int { return 60 },
 			wantRes: domain.RouteDecision{
 				Target:    "v1",
 				Reason:    "canary sorting rules",
@@ -69,12 +67,11 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name:          "feat disabled",
-			req:           defaultReq,
-			featEnable:    false,
-			jsonConfig:    "",
-			errJSONConfig: nil,
-			bc:            defaultBc,
+			name:       "feat disabled",
+			req:        defaultReq,
+			featEnable: false,
+			rules:      nil,
+			bc:         defaultBc,
 			wantRes: domain.RouteDecision{
 				Target:    "v1",
 				Reason:    "v2 routing not enabled",
@@ -82,28 +79,15 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name:          "error fetching canary rules",
-			req:           defaultReq,
-			featEnable:    true,
-			jsonConfig:    "",
-			errJSONConfig: errors.New("something went wrong"),
-			bc:            defaultBc,
+			name:       "error fetching canary rules",
+			req:        defaultReq,
+			featEnable: true,
+			rules:      nil,
+			errRules:   errors.New("something went wrong"),
+			bc:         defaultBc,
 			wantRes: domain.RouteDecision{
 				Target:    "v1",
 				Reason:    "internal error on canary rules fetching",
-				Telemetry: defaultTelemetry,
-			},
-		},
-		{
-			name:          "error unmarshalling canary rules json",
-			req:           defaultReq,
-			featEnable:    true,
-			jsonConfig:    `{"broken}`,
-			errJSONConfig: nil,
-			bc:            defaultBc,
-			wantRes: domain.RouteDecision{
-				Target:    "v1",
-				Reason:    "internal error on canary rules parsing",
 				Telemetry: defaultTelemetry,
 			},
 		},
@@ -114,10 +98,9 @@ func TestRoute(t *testing.T) {
 				Country:    "Us",
 				AppVersion: "1.27",
 			},
-			featEnable:    true,
-			jsonConfig:    defaultJSONConfig,
-			errJSONConfig: nil,
-			bc:            defaultBc,
+			featEnable: true,
+			rules:      defaultRules,
+			bc:         defaultBc,
 			wantRes: domain.RouteDecision{
 				Target:    "v1",
 				Reason:    "unavailable for user country",
@@ -130,7 +113,7 @@ func TestRoute(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			fr := testutil.NewMockReader(
-				tt.featEnable, tt.jsonConfig, tt.errJSONConfig,
+				tt.featEnable, "", nil, tt.rules, tt.errRules,
 			)
 
 			mockEngine := router.NewEngine(

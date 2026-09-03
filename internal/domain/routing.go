@@ -9,6 +9,10 @@ type CanaryRoutingRules struct {
 	Countries  []string `json:"allowed_countries" binding:"required"`
 }
 
+func NewCanaryRules(percentage int, coutries []string) *CanaryRoutingRules {
+	return &CanaryRoutingRules{percentage, coutries}
+}
+
 // UserContext defines the client context data required
 // to make a routing decision.
 type UserContext struct {

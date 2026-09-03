@@ -22,7 +22,7 @@ func TestReadyz_NotReady(t *testing.T) {
 
 	appState := state.NewState()
 	mockFlags := testutil.NewMockService(
-		testutil.NewMockReader(true, "", nil),
+		testutil.NewMockReader(true, "", nil, nil, nil),
 	)
 
 	h := handlers.NewAppHandler(appState, mockFlags)
@@ -59,7 +59,7 @@ func TestReadyz_Ready(t *testing.T) {
 	appState.SetFeaturesReady()
 
 	mockFlags := testutil.NewMockService(
-		testutil.NewMockReader(true, "", nil),
+		testutil.NewMockReader(true, "", nil, nil, nil),
 	)
 	h := handlers.NewAppHandler(appState, mockFlags)
 	router := setupMockRouterReadyz(h)

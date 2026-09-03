@@ -26,10 +26,10 @@ func TestRouteHandler_Success(t *testing.T) {
 
 	state := state.NewState()
 
+	canaryRules := domain.NewCanaryRules(50, []string{"BR"})
+
 	mockReader := testutil.NewMockReader(
-		true,
-		`{"canary_percentage": 50, "allowed_countries": ["BR"]}`,
-		nil,
+		true, "", nil, canaryRules, nil,
 	)
 
 	rh := handlers.NewRouteHandler(
@@ -76,10 +76,10 @@ func TestRouteHandler_ErrorBadRequest(t *testing.T) {
 
 	state := state.NewState()
 
+	canaryRules := domain.NewCanaryRules(50, []string{"BR"})
+
 	mockReader := testutil.NewMockReader(
-		true,
-		`{"canary_percentage": 50, "allowed_countries": ["BR"]}`,
-		nil,
+		true, "", nil, canaryRules, nil,
 	)
 
 	rh := handlers.NewRouteHandler(

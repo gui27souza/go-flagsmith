@@ -28,9 +28,12 @@ func main() {
 		// TODO - gracefull shutdown
 	}
 	appState.SetClientsReady()
+
+	interval := 2 * time.Second
 	flagsSvc.MonitorFlagsReady(
-		ctx, appState, 2*time.Second,
+		ctx, appState, interval,
 	)
+	flagsSvc.StartRulesSync(ctx, interval)
 
 	h := handlers.NewAppHandler(appState, flagsSvc)
 
